@@ -13,14 +13,16 @@ import (
 )
 
 type Linter struct {
-	GroupNameRegExp        string
-	RuleAlertRegExp        string
-	RequireGroupName       bool
-	RequireGroupRules      bool
-	RequireRuleAlert       bool
-	RequireRuleExpr        bool
-	RequireRuleLabels      []string
-	RequireRuleAnnotations []string
+	MatchGroupName         string       `yaml:"matchGroupName"`
+	MatchRuleAlert         string       `yaml:"matchRuleAlertName"`
+	RequireGroupName       bool         `yaml:"requireGroupName"`
+	RequireGroupRules      bool         `yaml:"requireGroupRules"`
+	RequireRuleAlert       bool         `yaml:"requireRuleAlertName"`
+	RequireRuleExpr        bool         `yaml:"requireRuleExpr"`
+	RequireRuleLabels      []string     `yaml:"requireRuleLabels"`
+	RequireRuleAnnotations []string     `yaml:"requireRuleAnnotations"`
+	MatchRuleLabels        []*MetaMatch `yaml:"matchRuleLabels"`
+	MatchRuleAnnotations   []*MetaMatch `yaml:"matchRuleAnnotations"`
 	groupNameRegExp        *regexp.Regexp
 	ruleAlertRegExp        *regexp.Regexp
 }
@@ -42,10 +44,16 @@ type Rule struct {
 	Annotations map[string]string
 }
 
+type MetaMatch struct {
+	Name   string `yaml:"name"`
+	Match  string `yaml:"match"`
+	regExp *regexp.Regexp
+}
+
 func NewLinter() (*Linter, error) {
 	linter := &Linter{
-		GroupNameRegExp:   "^([a-zA-Z]+)$",
-		RuleAlertRegExp:   "^([a-zA-Z]+)$",
+		MatchGroupName:    "^([a-zA-Z]+)$",
+		MatchRuleAlert:    "^([a-zA-Z]+)$",
 		RequireGroupName:  true,
 		RequireGroupRules: true,
 		RequireRuleAlert:  true,
@@ -55,26 +63,71 @@ func NewLinter() (*Linter, error) {
 			"group",
 			"severity",
 		},
+		MatchRuleLabels: []*MetaMatch{
+			&MetaMatch{
+				Name:  "severity",
+				Match: "^([a-z]+)$",
+			},
+		},
 		RequireRuleAnnotations: []string{
 			"description",
 			"summary",
 		},
+		MatchRuleAnnotations: []*MetaMatch{
+			&MetaMatch{
+				Name:  "summary",
+				Match: "{{ \\$labels.(instance|name) }}",
+			},
+			&MetaMatch{
+				Name:  "description",
+				Match: "{{ \\$labels.(instance|name) }}",
+			},
+			&MetaMatch{
+				Name:  "grafana_url",
+				Match: "{{ \\$labels.(instance|name) }}",
+			},
+			&MetaMatch{
+				Name:  "brief_summary",
+				Match: "{{ \\$labels.(instance|name) }}",
+			},
+		},
 	}
-	if len(linter.RuleAlertRegExp) > 0 {
-		ruleAlertRegExp, err := regexp.Compile(linter.RuleAlertRegExp)
-		if err != nil {
-			return nil, err
-		}
-		linter.ruleAlertRegExp = ruleAlertRegExp
-	}
-	if len(linter.GroupNameRegExp) > 0 {
-		groupNameRegExp, err := regexp.Compile(linter.GroupNameRegExp)
-		if err != nil {
-			return nil, err
-		}
-		linter.groupNameRegExp = groupNameRegExp
+	if err := linter.InitRegExpMatcher(); err != nil {
+		return nil, err
 	}
 	return linter, nil
+}
+
+func (l *Linter) InitRegExpMatcher() error {
+	if len(l.MatchRuleAlert) > 0 {
+		ruleAlertRegExp, err := regexp.Compile(l.MatchRuleAlert)
+		if err != nil {
+			return err
+		}
+		l.ruleAlertRegExp = ruleAlertRegExp
+	}
+	if len(l.MatchGroupName) > 0 {
+		groupNameRegExp, err := regexp.Compile(l.MatchGroupName)
+		if err != nil {
+			return err
+		}
+		l.groupNameRegExp = groupNameRegExp
+	}
+	for _, labelMatch := range l.MatchRuleLabels {
+		re, err := regexp.Compile(labelMatch.Match)
+		if err != nil {
+			return err
+		}
+		labelMatch.regExp = re
+	}
+	for _, annMatch := range l.MatchRuleAnnotations {
+		re, err := regexp.Compile(annMatch.Match)
+		if err != nil {
+			return err
+		}
+		annMatch.regExp = re
+	}
+	return nil
 }
 
 func (g *Group) String() string {
@@ -98,11 +151,41 @@ func (l *Linter) LintProjectGroup(group *Group) []error {
 	}
 	if l.groupNameRegExp != nil {
 		if ok := l.groupNameRegExp.MatchString(group.Name); !ok {
-			errs = append(errs, fmt.Errorf("Group name must match: %s", l.GroupNameRegExp))
+			errs = append(errs, fmt.Errorf("Group name must match: %s", l.MatchGroupName))
 		}
 	}
 	if l.RequireGroupRules && len(group.Rules) == 0 {
 		errs = append(errs, fmt.Errorf("Rules for group '%s' is required", group.Name))
+	}
+	return errs
+}
+
+func (m *MetaMatch) MatchTo(key, value string) bool {
+	if m.Name != key {
+		return true
+	}
+	if !m.regExp.MatchString(value) {
+		return false
+	}
+	return true
+}
+
+func (l *Linter) MatchLabels(label, value string) []error {
+	var errs []error
+	for _, labelMatch := range l.MatchRuleLabels {
+		if !labelMatch.MatchTo(label, value) {
+			errs = append(errs, fmt.Errorf("Label's value '%s' not match to: %s", label, labelMatch.Match))
+		}
+	}
+	return errs
+}
+
+func (l *Linter) MatchAnnotations(annotation, value string) []error {
+	var errs []error
+	for _, annMatch := range l.MatchRuleAnnotations {
+		if !annMatch.MatchTo(annotation, value) {
+			errs = append(errs, fmt.Errorf("Annotations's value '%s' not match to: %s", annotation, annMatch.Match))
+		}
 	}
 	return errs
 }
@@ -114,7 +197,7 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 	}
 	if l.ruleAlertRegExp != nil {
 		if ok := l.ruleAlertRegExp.MatchString(rule.Alert); !ok {
-			errs = append(errs, fmt.Errorf("Alert name must match: %s", l.RuleAlertRegExp))
+			errs = append(errs, fmt.Errorf("Alert name must match: %s", l.MatchRuleAlert))
 		}
 	}
 	if l.RequireRuleExpr && len(rule.Expr) == 0 {
@@ -129,6 +212,10 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 			errs = append(errs, fmt.Errorf("Alert label '%s' is requred and must be non-empty", requiredLabel))
 		}
 	}
+	for label, value := range rule.Labels {
+		matchErrors := l.MatchLabels(label, value)
+		errs = append(errs, matchErrors...)
+	}
 	if len(l.RequireRuleAnnotations) > 0 && len(rule.Annotations) == 0 {
 		errs = append(errs, errors.New("Alert annotations is requred"))
 	}
@@ -137,6 +224,10 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 		if !ok || len(val) == 0 {
 			errs = append(errs, fmt.Errorf("Alert annotation '%s' is requred and must be non-empty", requiredAnnotation))
 		}
+	}
+	for annotation, value := range rule.Annotations {
+		matchErrors := l.MatchAnnotations(annotation, value)
+		errs = append(errs, matchErrors...)
 	}
 	return errs
 }
