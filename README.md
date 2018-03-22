@@ -12,4 +12,5 @@ High-level linter for Prometheus rules.
 * Наличее поля Expr у правила необходимо;
 * Список требуемых лейблов: env, group, severity, service;
 * Список требуемых аннотаций: description, summary, brief_summary;
-* В аннотациях summary, description, grafana_url, brief_summary обязательно должен быть использован лейбл instance или name.
+* В аннотациях summary, description, brief_summary обязательно должен быть использован лейбл instance или name;
+* В аннотациях grafana_url, graylog_url, rancher_url обязательно использование ключевого лейбла для корректной ссылки.

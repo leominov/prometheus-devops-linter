@@ -85,12 +85,20 @@ func NewLinter() (*Linter, error) {
 				Match: "{{ \\$labels.(instance|name) }}",
 			},
 			&MetaMatch{
-				Name:  "grafana_url",
+				Name:  "brief_summary",
 				Match: "{{ \\$labels.(instance|name) }}",
 			},
 			&MetaMatch{
-				Name:  "brief_summary",
-				Match: "{{ \\$labels.(instance|name) }}",
+				Name:  "grafana_url",
+				Match: "{{ \\$labels.",
+			},
+			&MetaMatch{
+				Name:  "graylog_url",
+				Match: "{{ \\$labels.",
+			},
+			&MetaMatch{
+				Name:  "rancher_url",
+				Match: "{{ \\$labels.",
 			},
 		},
 	}
