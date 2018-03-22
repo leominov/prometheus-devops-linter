@@ -10,6 +10,6 @@ High-level linter for Prometheus rules.
 * Наличие имени алерта у правила необходимо;
 * Имя алерта у правила должно содержать только буквы латинского алфавита;
 * Наличее поля Expr у правила необходимо;
-* Список требуемых лейблов: env, group, severity;
-* Список требуемых аннотаций: description, summary;
-* В аннотациях summary, description, grafana_url и brief_summary обязательно должен быть использован лейбл instance или name.
+* Список требуемых лейблов: env, group, severity, service;
+* Список требуемых аннотаций: description, summary, brief_summary;
+* В аннотациях summary, description, grafana_url, brief_summary обязательно должен быть использован лейбл instance или name.
