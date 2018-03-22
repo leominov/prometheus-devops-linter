@@ -11,5 +11,5 @@ groups:
           env: "{{ $labels.group }}"
           severity: "warning"
         annotations:
-          summary: "Prometheus Network Access Exporter { $labels.instance }} недоступен"
+          summary: "Prometheus Network Access Exporter {{ $labels.instance }} недоступен"
           description: "Prometheus Network Access Exporter на сервере {{ $labels.instance }} окружения {{ $labels.env }} не отвечает на запросы Prometheus более 5 минут"
