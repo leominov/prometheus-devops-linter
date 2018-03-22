@@ -176,7 +176,7 @@ func (l *Linter) MatchLabels(label, value string) []error {
 	var errs []error
 	for _, labelMatch := range l.MatchRuleLabels {
 		if !labelMatch.MatchTo(label, value) {
-			errs = append(errs, fmt.Errorf("Label's value '%s' not match to: %s", label, labelMatch.Match))
+			errs = append(errs, fmt.Errorf("Label value '%s' not match to: %s", label, labelMatch.Match))
 		}
 	}
 	return errs
@@ -186,7 +186,7 @@ func (l *Linter) MatchAnnotations(annotation, value string) []error {
 	var errs []error
 	for _, annMatch := range l.MatchRuleAnnotations {
 		if !annMatch.MatchTo(annotation, value) {
-			errs = append(errs, fmt.Errorf("Annotations's value '%s' not match to: %s", annotation, annMatch.Match))
+			errs = append(errs, fmt.Errorf("Annotation value '%s' not match to: %s", annotation, annMatch.Match))
 		}
 	}
 	return errs
