@@ -13,16 +13,16 @@ import (
 )
 
 type Linter struct {
-	GroupNameRegExp         string
-	AlertAlertRegExp        string
-	RequireGroupName        bool
-	RequireGroupRules       bool
-	RequireAlertAlert       bool
-	RequireAlertExpr        bool
-	RequireAlertLabels      []string
-	RequireAlertAnnotations []string
-	groupNameRegExp         *regexp.Regexp
-	alertAlertRegExp        *regexp.Regexp
+	GroupNameRegExp        string
+	RuleAlertRegExp        string
+	RequireGroupName       bool
+	RequireGroupRules      bool
+	RequireRuleAlert       bool
+	RequireRuleExpr        bool
+	RequireRuleLabels      []string
+	RequireRuleAnnotations []string
+	groupNameRegExp        *regexp.Regexp
+	ruleAlertRegExp        *regexp.Regexp
 }
 
 type Project struct {
@@ -45,27 +45,27 @@ type Rule struct {
 func NewLinter() (*Linter, error) {
 	linter := &Linter{
 		GroupNameRegExp:   "^([a-zA-Z]+)$",
-		AlertAlertRegExp:  "^([a-zA-Z]+)$",
+		RuleAlertRegExp:   "^([a-zA-Z]+)$",
 		RequireGroupName:  true,
 		RequireGroupRules: true,
-		RequireAlertAlert: true,
-		RequireAlertExpr:  true,
-		RequireAlertLabels: []string{
+		RequireRuleAlert:  true,
+		RequireRuleExpr:   true,
+		RequireRuleLabels: []string{
 			"env",
 			"group",
 			"severity",
 		},
-		RequireAlertAnnotations: []string{
+		RequireRuleAnnotations: []string{
 			"description",
 			"summary",
 		},
 	}
-	if len(linter.AlertAlertRegExp) > 0 {
-		alertAlertRegExp, err := regexp.Compile(linter.AlertAlertRegExp)
+	if len(linter.RuleAlertRegExp) > 0 {
+		ruleAlertRegExp, err := regexp.Compile(linter.RuleAlertRegExp)
 		if err != nil {
 			return nil, err
 		}
-		linter.alertAlertRegExp = alertAlertRegExp
+		linter.ruleAlertRegExp = ruleAlertRegExp
 	}
 	if len(linter.GroupNameRegExp) > 0 {
 		groupNameRegExp, err := regexp.Compile(linter.GroupNameRegExp)
@@ -109,30 +109,30 @@ func (l *Linter) LintProjectGroup(group *Group) []error {
 
 func (l *Linter) LintProjectRule(rule *Rule) []error {
 	var errs []error
-	if l.RequireAlertAlert && len(rule.Alert) == 0 {
+	if l.RequireRuleAlert && len(rule.Alert) == 0 {
 		errs = append(errs, errors.New("Alert name is requred"))
 	}
-	if l.alertAlertRegExp != nil {
-		if ok := l.alertAlertRegExp.MatchString(rule.Alert); !ok {
-			errs = append(errs, fmt.Errorf("Alert name must match: %s", l.AlertAlertRegExp))
+	if l.ruleAlertRegExp != nil {
+		if ok := l.ruleAlertRegExp.MatchString(rule.Alert); !ok {
+			errs = append(errs, fmt.Errorf("Alert name must match: %s", l.RuleAlertRegExp))
 		}
 	}
-	if l.RequireAlertExpr && len(rule.Expr) == 0 {
+	if l.RequireRuleExpr && len(rule.Expr) == 0 {
 		errs = append(errs, errors.New("Alert expr is requred"))
 	}
-	if len(l.RequireAlertLabels) > 0 && len(rule.Labels) == 0 {
+	if len(l.RequireRuleLabels) > 0 && len(rule.Labels) == 0 {
 		errs = append(errs, errors.New("Alert labels is requred"))
 	}
-	for _, requiredLabel := range l.RequireAlertLabels {
+	for _, requiredLabel := range l.RequireRuleLabels {
 		val, ok := rule.Labels[requiredLabel]
 		if !ok || len(val) == 0 {
 			errs = append(errs, fmt.Errorf("Alert label '%s' is requred and must be non-empty", requiredLabel))
 		}
 	}
-	if len(l.RequireAlertAnnotations) > 0 && len(rule.Annotations) == 0 {
+	if len(l.RequireRuleAnnotations) > 0 && len(rule.Annotations) == 0 {
 		errs = append(errs, errors.New("Alert annotations is requred"))
 	}
-	for _, requiredAnnotation := range l.RequireAlertAnnotations {
+	for _, requiredAnnotation := range l.RequireRuleAnnotations {
 		val, ok := rule.Annotations[requiredAnnotation]
 		if !ok || len(val) == 0 {
 			errs = append(errs, fmt.Errorf("Alert annotation '%s' is requred and must be non-empty", requiredAnnotation))
