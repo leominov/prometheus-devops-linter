@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -12,13 +13,16 @@ import (
 )
 
 type Linter struct {
-	ShowAllErrors           bool
+	GroupNameRegExp         string
+	AlertAlertRegExp        string
 	RequireGroupName        bool
 	RequireGroupRules       bool
 	RequireAlertAlert       bool
 	RequireAlertExpr        bool
 	RequireAlertLabels      []string
 	RequireAlertAnnotations []string
+	groupNameRegExp         *regexp.Regexp
+	alertAlertRegExp        *regexp.Regexp
 }
 
 type Project struct {
@@ -38,9 +42,10 @@ type Rule struct {
 	Annotations map[string]string
 }
 
-func NewLinter() *Linter {
-	return &Linter{
-		ShowAllErrors:     true,
+func NewLinter() (*Linter, error) {
+	linter := &Linter{
+		GroupNameRegExp:   "^([a-zA-Z]+)$",
+		AlertAlertRegExp:  "^([a-zA-Z]+)$",
 		RequireGroupName:  true,
 		RequireGroupRules: true,
 		RequireAlertAlert: true,
@@ -55,6 +60,21 @@ func NewLinter() *Linter {
 			"summary",
 		},
 	}
+	if len(linter.AlertAlertRegExp) > 0 {
+		alertAlertRegExp, err := regexp.Compile(linter.AlertAlertRegExp)
+		if err != nil {
+			return nil, err
+		}
+		linter.alertAlertRegExp = alertAlertRegExp
+	}
+	if len(linter.GroupNameRegExp) > 0 {
+		groupNameRegExp, err := regexp.Compile(linter.GroupNameRegExp)
+		if err != nil {
+			return nil, err
+		}
+		linter.groupNameRegExp = groupNameRegExp
+	}
+	return linter, nil
 }
 
 func (g *Group) String() string {
@@ -76,6 +96,11 @@ func (l *Linter) LintProjectGroup(group *Group) []error {
 	if l.RequireGroupName && len(group.Name) == 0 {
 		errs = append(errs, errors.New("Group name is required"))
 	}
+	if l.groupNameRegExp != nil {
+		if ok := l.groupNameRegExp.MatchString(group.Name); !ok {
+			errs = append(errs, fmt.Errorf("Group name must match: %s", l.GroupNameRegExp))
+		}
+	}
 	if l.RequireGroupRules && len(group.Rules) == 0 {
 		errs = append(errs, fmt.Errorf("Rules for group '%s' is required", group.Name))
 	}
@@ -86,6 +111,11 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 	var errs []error
 	if l.RequireAlertAlert && len(rule.Alert) == 0 {
 		errs = append(errs, errors.New("Alert name is requred"))
+	}
+	if l.alertAlertRegExp != nil {
+		if ok := l.alertAlertRegExp.MatchString(rule.Alert); !ok {
+			errs = append(errs, fmt.Errorf("Alert name must match: %s", l.AlertAlertRegExp))
+		}
 	}
 	if l.RequireAlertExpr && len(rule.Expr) == 0 {
 		errs = append(errs, errors.New("Alert expr is requred"))
