@@ -195,7 +195,7 @@ func (l *Linter) MatchAnnotations(annotation, value string) []error {
 func (l *Linter) LintProjectRule(rule *Rule) []error {
 	var errs []error
 	if l.RequireRuleAlert && len(rule.Alert) == 0 {
-		errs = append(errs, errors.New("Alert name is requred"))
+		errs = append(errs, errors.New("Alert name is required"))
 	}
 	if l.ruleAlertRegExp != nil {
 		if ok := l.ruleAlertRegExp.MatchString(rule.Alert); !ok {
@@ -203,15 +203,15 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 		}
 	}
 	if l.RequireRuleExpr && len(rule.Expr) == 0 {
-		errs = append(errs, errors.New("Rule expr is requred"))
+		errs = append(errs, errors.New("Rule expr is required"))
 	}
 	if len(l.RequireRuleLabels) > 0 && len(rule.Labels) == 0 {
-		errs = append(errs, errors.New("Rule labels is requred"))
+		errs = append(errs, errors.New("Rule labels is required"))
 	}
 	for _, requiredLabel := range l.RequireRuleLabels {
 		val, ok := rule.Labels[requiredLabel]
 		if !ok || len(val) == 0 {
-			errs = append(errs, fmt.Errorf("Rule label '%s' is requred and must be non-empty", requiredLabel))
+			errs = append(errs, fmt.Errorf("Rule label '%s' is required and must be non-empty", requiredLabel))
 		}
 	}
 	for label, value := range rule.Labels {
@@ -219,12 +219,12 @@ func (l *Linter) LintProjectRule(rule *Rule) []error {
 		errs = append(errs, matchErrors...)
 	}
 	if len(l.RequireRuleAnnotations) > 0 && len(rule.Annotations) == 0 {
-		errs = append(errs, errors.New("Rule annotations is requred"))
+		errs = append(errs, errors.New("Rule annotations is required"))
 	}
 	for _, requiredAnnotation := range l.RequireRuleAnnotations {
 		val, ok := rule.Annotations[requiredAnnotation]
 		if !ok || len(val) == 0 {
-			errs = append(errs, fmt.Errorf("Rule annotation '%s' is requred and must be non-empty", requiredAnnotation))
+			errs = append(errs, fmt.Errorf("Rule annotation '%s' is required and must be non-empty", requiredAnnotation))
 		}
 	}
 	for annotation, value := range rule.Annotations {
