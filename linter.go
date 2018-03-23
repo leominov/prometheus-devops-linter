@@ -45,9 +45,9 @@ type Rule struct {
 }
 
 type MetaMatch struct {
-	Name   string `yaml:"name"`
-	Match  string `yaml:"match"`
-	regExp *regexp.Regexp
+	Name        string `yaml:"name"`
+	Match       string `yaml:"match"`
+	matchRegExp *regexp.Regexp
 }
 
 func NewLinter(configFile string) (*Linter, error) {
@@ -155,14 +155,14 @@ func (l *Linter) InitRegExpMatcher() error {
 		if err != nil {
 			return err
 		}
-		labelMatch.regExp = re
+		labelMatch.matchRegExp = re
 	}
 	for _, annMatch := range l.MatchRuleAnnotations {
 		re, err := regexp.Compile(annMatch.Match)
 		if err != nil {
 			return err
 		}
-		annMatch.regExp = re
+		annMatch.matchRegExp = re
 	}
 	return nil
 }
@@ -201,7 +201,7 @@ func (m *MetaMatch) MatchTo(key, value string) bool {
 	if m.Name != key {
 		return true
 	}
-	if !m.regExp.MatchString(value) {
+	if !m.matchRegExp.MatchString(value) {
 		return false
 	}
 	return true
