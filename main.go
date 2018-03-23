@@ -14,6 +14,7 @@ const (
 
 var (
 	AlertsPath = flag.String("path", "", "Directory with alert files")
+	ConfigFile = flag.String("config-file", "", "Configuration file")
 )
 
 func DiscoverConfigFile() string {
@@ -29,8 +30,12 @@ func DiscoverConfigFile() string {
 }
 
 func main() {
+	var configFile string
 	flag.Parse()
-	configFile := DiscoverConfigFile()
+	configFile = *ConfigFile
+	if len(configFile) == 0 {
+		configFile = DiscoverConfigFile()
+	}
 	linter, err := NewLinter(configFile)
 	if err != nil {
 		logrus.Error(err)
