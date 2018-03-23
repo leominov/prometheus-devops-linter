@@ -1,0 +1,34 @@
+---
+matchGroupName: ^([a-zA-Z0-9]+)$
+requireGroupRules: true
+requireGroupName: true
+
+matchRuleAlertName: ^([a-zA-Z0-9]+)$
+requireRuleAlertName: true
+requireRuleExpr: true
+requireRuleLabels:
+  - env
+  - group
+  - severity
+  - service
+requireRuleAnnotations:
+  - summary
+  - brief_summary
+matchRuleLabels:
+  - name: severity
+    match: ^([a-z]+)$
+matchRuleAnnotations:
+  - name: summary
+    match: "{{ \\$labels.(instance|vhost|name) }}"
+  - name: description
+    match: "{{ \\$labels.(instance|vhost|name) }}"
+  - name: brief_summary
+    match: "{{ \\$labels.(instance|vhost|name) }}"
+  - name: grafana_url
+    match: "{{ \\$labels."
+  - name: graylog_url
+    match: "{{ \\$labels."
+  - name: rancher_url
+    match: "{{ \\$labels."
+  - name: splunk_url
+    match: "{{ \\$labels."

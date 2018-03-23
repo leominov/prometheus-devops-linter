@@ -50,62 +50,86 @@ type MetaMatch struct {
 	regExp *regexp.Regexp
 }
 
-func NewLinter() (*Linter, error) {
-	linter := &Linter{
-		MatchGroupName:    "^([a-zA-Z0-9]+)$",
-		MatchRuleAlert:    "^([a-zA-Z0-9]+)$",
-		RequireGroupName:  true,
-		RequireGroupRules: true,
-		RequireRuleAlert:  true,
-		RequireRuleExpr:   true,
-		RequireRuleLabels: []string{
-			"env",
-			"group",
-			"severity",
-			"service",
-		},
-		MatchRuleLabels: []*MetaMatch{
-			&MetaMatch{
-				Name:  "severity",
-				Match: "^([a-z]+)$",
+func NewLinter(configFile string) (*Linter, error) {
+	var (
+		linter *Linter
+		err    error
+	)
+	if len(configFile) > 0 {
+		linter, err = NewLinterFromFile(configFile)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		linter = &Linter{
+			MatchGroupName:    "^([a-zA-Z0-9]+)$",
+			MatchRuleAlert:    "^([a-zA-Z0-9]+)$",
+			RequireGroupName:  true,
+			RequireGroupRules: true,
+			RequireRuleAlert:  true,
+			RequireRuleExpr:   true,
+			RequireRuleLabels: []string{
+				"env",
+				"group",
+				"severity",
+				"service",
 			},
-		},
-		RequireRuleAnnotations: []string{
-			"summary",
-			"brief_summary",
-		},
-		MatchRuleAnnotations: []*MetaMatch{
-			&MetaMatch{
-				Name:  "summary",
-				Match: "{{ \\$labels.(instance|vhost|name) }}",
+			MatchRuleLabels: []*MetaMatch{
+				&MetaMatch{
+					Name:  "severity",
+					Match: "^([a-z]+)$",
+				},
 			},
-			&MetaMatch{
-				Name:  "description",
-				Match: "{{ \\$labels.(instance|vhost|name) }}",
+			RequireRuleAnnotations: []string{
+				"summary",
+				"brief_summary",
 			},
-			&MetaMatch{
-				Name:  "brief_summary",
-				Match: "{{ \\$labels.(instance|vhost|name) }}",
+			MatchRuleAnnotations: []*MetaMatch{
+				&MetaMatch{
+					Name:  "summary",
+					Match: "{{ \\$labels.(instance|vhost|name) }}",
+				},
+				&MetaMatch{
+					Name:  "description",
+					Match: "{{ \\$labels.(instance|vhost|name) }}",
+				},
+				&MetaMatch{
+					Name:  "brief_summary",
+					Match: "{{ \\$labels.(instance|vhost|name) }}",
+				},
+				&MetaMatch{
+					Name:  "grafana_url",
+					Match: "{{ \\$labels.",
+				},
+				&MetaMatch{
+					Name:  "graylog_url",
+					Match: "{{ \\$labels.",
+				},
+				&MetaMatch{
+					Name:  "rancher_url",
+					Match: "{{ \\$labels.",
+				},
+				&MetaMatch{
+					Name:  "splunk_url",
+					Match: "{{ \\$labels.",
+				},
 			},
-			&MetaMatch{
-				Name:  "grafana_url",
-				Match: "{{ \\$labels.",
-			},
-			&MetaMatch{
-				Name:  "graylog_url",
-				Match: "{{ \\$labels.",
-			},
-			&MetaMatch{
-				Name:  "rancher_url",
-				Match: "{{ \\$labels.",
-			},
-			&MetaMatch{
-				Name:  "splunk_url",
-				Match: "{{ \\$labels.",
-			},
-		},
+		}
 	}
 	if err := linter.InitRegExpMatcher(); err != nil {
+		return nil, err
+	}
+	return linter, nil
+}
+
+func NewLinterFromFile(configFile string) (*Linter, error) {
+	bytes, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		return nil, err
+	}
+	linter := &Linter{}
+	err = yaml.Unmarshal(bytes, &linter)
+	if err != nil {
 		return nil, err
 	}
 	return linter, nil
