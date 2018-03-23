@@ -52,8 +52,8 @@ type MetaMatch struct {
 
 func NewLinter() (*Linter, error) {
 	linter := &Linter{
-		MatchGroupName:    "^([a-zA-Z]+)$",
-		MatchRuleAlert:    "^([a-zA-Z]+)$",
+		MatchGroupName:    "^([a-zA-Z0-9]+)$",
+		MatchRuleAlert:    "^([a-zA-Z0-9]+)$",
 		RequireGroupName:  true,
 		RequireGroupRules: true,
 		RequireRuleAlert:  true,
@@ -71,22 +71,21 @@ func NewLinter() (*Linter, error) {
 			},
 		},
 		RequireRuleAnnotations: []string{
-			"description",
 			"summary",
 			"brief_summary",
 		},
 		MatchRuleAnnotations: []*MetaMatch{
 			&MetaMatch{
 				Name:  "summary",
-				Match: "{{ \\$labels.(instance|name) }}",
+				Match: "{{ \\$labels.(instance|vhost|name) }}",
 			},
 			&MetaMatch{
 				Name:  "description",
-				Match: "{{ \\$labels.(instance|name) }}",
+				Match: "{{ \\$labels.(instance|vhost|name) }}",
 			},
 			&MetaMatch{
 				Name:  "brief_summary",
-				Match: "{{ \\$labels.(instance|name) }}",
+				Match: "{{ \\$labels.(instance|vhost|name) }}",
 			},
 			&MetaMatch{
 				Name:  "grafana_url",
@@ -98,6 +97,10 @@ func NewLinter() (*Linter, error) {
 			},
 			&MetaMatch{
 				Name:  "rancher_url",
+				Match: "{{ \\$labels.",
+			},
+			&MetaMatch{
+				Name:  "splunk_url",
 				Match: "{{ \\$labels.",
 			},
 		},
