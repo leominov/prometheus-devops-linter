@@ -69,51 +69,11 @@ func NewLinter(configFile string) (*Linter, error) {
 			RequireRuleAlert:  true,
 			RequireRuleExpr:   true,
 			RequireRuleLabels: []string{
-				"env",
-				"group",
 				"severity",
-				"service",
 			},
-			MatchRuleLabels: []*MetaMatch{
-				&MetaMatch{
-					Name:  "severity",
-					Match: "^([a-z]+)$",
-				},
-			},
-			RequireRuleAnnotations: []string{
-				"summary",
-				"brief_summary",
-			},
-			MatchRuleAnnotations: []*MetaMatch{
-				&MetaMatch{
-					Name:  "summary",
-					Match: "{{ \\$labels.(instance|vhost|name) }}",
-				},
-				&MetaMatch{
-					Name:  "description",
-					Match: "{{ \\$labels.(instance|vhost|name) }}",
-				},
-				&MetaMatch{
-					Name:  "brief_summary",
-					Match: "{{ \\$labels.(instance|vhost|name) }}",
-				},
-				&MetaMatch{
-					Name:  "grafana_url",
-					Match: "{{ \\$labels.",
-				},
-				&MetaMatch{
-					Name:  "graylog_url",
-					Match: "{{ \\$labels.",
-				},
-				&MetaMatch{
-					Name:  "rancher_url",
-					Match: "{{ \\$labels.",
-				},
-				&MetaMatch{
-					Name:  "splunk_url",
-					Match: "{{ \\$labels.",
-				},
-			},
+			MatchRuleLabels:        []*MetaMatch{},
+			RequireRuleAnnotations: []string{},
+			MatchRuleAnnotations:   []*MetaMatch{},
 		}
 	}
 	if err := linter.InitRegExpMatcher(); err != nil {
