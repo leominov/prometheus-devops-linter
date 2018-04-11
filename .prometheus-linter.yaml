@@ -1,4 +1,6 @@
 ---
+groupPerFile: true
+
 matchGroupName: ^([a-zA-Z0-9]+)$
 requireGroupRules: true
 requireGroupName: true

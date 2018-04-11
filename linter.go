@@ -13,6 +13,7 @@ import (
 )
 
 type Linter struct {
+	OneGroupPerFile        bool         `yaml:"groupPerFile"`
 	MatchGroupName         string       `yaml:"matchGroupName"`
 	MatchRuleAlert         string       `yaml:"matchRuleAlertName"`
 	RequireGroupName       bool         `yaml:"requireGroupName"`
@@ -28,7 +29,8 @@ type Linter struct {
 }
 
 type Project struct {
-	Groups []*Group `yaml:"groups"`
+	Groups   []*Group `yaml:"groups"`
+	Filename string   `yaml:"-"`
 }
 
 type Group struct {
@@ -241,6 +243,10 @@ func PrintErrors(pref string, errs []error) {
 
 func (l *Linter) LintProject(project *Project) error {
 	var withErrors bool
+	if l.OneGroupPerFile && len(project.Groups) > 1 {
+		withErrors = true
+		PrintErrors(project.Filename, []error{errors.New("Allowed one group per file")})
+	}
 	for _, group := range project.Groups {
 		groupErrors := l.LintProjectGroup(group)
 		if len(groupErrors) > 0 {
@@ -266,7 +272,9 @@ func (l *Linter) LoadProjectFromFile(filename string) (*Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	project := &Project{}
+	project := &Project{
+		Filename: filename,
+	}
 	err = yaml.Unmarshal(bytes, &project)
 	if err != nil {
 		return nil, err
