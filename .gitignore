@@ -22,6 +22,4 @@ _cgo_export.*
 .build/
 bin/
 .tarballs/
-coverage.out
-debug.test
 prometheus-devops-linter

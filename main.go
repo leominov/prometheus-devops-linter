@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/leominov/prometheus-devops-linter/linter"
+	"github.com/prometheus/common/version"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +38,7 @@ func main() {
 	if len(configFile) == 0 {
 		configFile = DiscoverConfigFile()
 	}
+	logrus.Infof("Starting prometheus-devops-linter %s...", version.Info())
 	linter, err := linter.NewLinter(configFile)
 	if err != nil {
 		logrus.Error(err)
