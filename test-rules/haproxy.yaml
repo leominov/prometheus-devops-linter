@@ -6,22 +6,24 @@ groups:
         for: 3m
         labels:
           severity: critical
+          service: "{{ $labels.service }}"
           env: "{{ $labels.env }}"
           group: "{{ $labels.group }}"
         annotations:
           summary: HAProxy {{ $labels.group }} {{ $labels.instance }} недоступен
           description: HAProxy на сервере {{ $labels.instance }} группы {{ $labels.group }} не отвечает более 3 минут
-          grafana_url: "http://into.tcsbank.ru:3000/dashboard/db/haproxy-servers?from=now-30m&var-node={{ $labels.instance }}"
-  - name: HAProxy
-    rules:
+          grafana_url: http://grafana.local/dashboard/db/haproxy-servers?from=now-30m&var-node={{ $labels.instance }}
+          brief_summary: "HAProxyDown: {{ $labels.instance }}"
       - alert: HAProxyExporterDown
         expr: up{job = "haproxy", env = "prod"} == 0
         for: 5m
         labels:
           severity: warning
+          service: "{{ $labels.service }}"
           env: "{{ $labels.env }}"
           group: "{{ $labels.group }}"
         annotations:
           summary: Prometheus HAProxy Exporter {{ $labels.group }} {{ $labels.instance }} недоступен
           description: Prometheus HAProxy Exporter на сервере {{ $labels.instance }} группы {{ $labels.group }} не отвечает на HTTP-запросы Prometheus более 5 минут
-          grafana_url: "http://into.tcsbank.ru:3000/dashboard/db/haproxy-instance?from=now-30m&var-node={{ $labels.instance }}"
+          grafana_url: http://grafana.local/dashboard/db/haproxy-instance?from=now-30m&var-node={{ $labels.instance }}
+          brief_summary: "HAProxyExporterDown: {{ $labels.instance }}"
