@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/leominov/prometheus-devops-linter/linter"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,7 +37,7 @@ func main() {
 	if len(configFile) == 0 {
 		configFile = DiscoverConfigFile()
 	}
-	linter, err := NewLinter(configFile)
+	linter, err := linter.NewLinter(configFile)
 	if err != nil {
 		logrus.Error(err)
 		os.Exit(1)
