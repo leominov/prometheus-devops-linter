@@ -1,9 +1,10 @@
 ---
-groupPerFile: true
+groupPerFile: false
 
 matchGroupName: ^([a-zA-Z0-9]+)$
 requireGroupRules: true
 requireGroupName: true
+uniqueGroupName: true
 
 matchRuleAlertName: ^([a-zA-Z0-9]+)$
 requireRuleAlertName: true

@@ -17,6 +17,7 @@ type Linter struct {
 	MatchGroupName         string       `yaml:"matchGroupName"`
 	MatchRuleAlert         string       `yaml:"matchRuleAlertName"`
 	RequireGroupName       bool         `yaml:"requireGroupName"`
+	UniqueGroupName        bool         `yaml:"uniqueGroupName"`
 	RequireGroupRules      bool         `yaml:"requireGroupRules"`
 	RequireRuleAlert       bool         `yaml:"requireRuleAlertName"`
 	RequireRuleExpr        bool         `yaml:"requireRuleExpr"`
@@ -24,6 +25,7 @@ type Linter struct {
 	RequireRuleAnnotations []string     `yaml:"requireRuleAnnotations"`
 	MatchRuleLabels        []*MetaMatch `yaml:"matchRuleLabels"`
 	MatchRuleAnnotations   []*MetaMatch `yaml:"matchRuleAnnotations"`
+	groupNameList          map[string]bool
 	groupNameRegExp        *regexp.Regexp
 	ruleAlertRegExp        *regexp.Regexp
 }
@@ -78,6 +80,7 @@ func NewLinter(configFile string) (*Linter, error) {
 			MatchRuleAnnotations:   []*MetaMatch{},
 		}
 	}
+	linter.groupNameList = make(map[string]bool)
 	if err := linter.InitRegExpMatcher(); err != nil {
 		return nil, err
 	}
@@ -143,8 +146,23 @@ func (r *Rule) String() string {
 	return "(unnamed alert)"
 }
 
+func (l *Linter) IsUniqueGroup(group *Group) bool {
+	_, ok := l.groupNameList[group.Name]
+	if ok {
+		return false
+	}
+	return true
+}
+
 func (l *Linter) LintProjectGroup(group *Group) []error {
 	var errs []error
+	if l.UniqueGroupName {
+		if l.IsUniqueGroup(group) {
+			l.groupNameList[group.Name] = true
+		} else {
+			errs = append(errs, errors.New("Group name must be unique"))
+		}
+	}
 	if l.RequireGroupName && len(group.Name) == 0 {
 		errs = append(errs, errors.New("Group name is required"))
 	}
