@@ -21,11 +21,7 @@ matchRuleLabels:
   - name: severity
     match: ^([a-z]+)$
 matchRuleAnnotations:
-  - name: summary
-    match: "{{ \\$labels.(instance|vhost|name) }}"
-  - name: description
-    match: "{{ \\$labels.(instance|vhost|name) }}"
-  - name: brief_summary
+  - name: (summary|description|brief_summary)
     match: "{{ \\$labels.(instance|vhost|name) }}"
   - name: ^.*_url
     match: "{{ \\$labels."
