@@ -49,9 +49,10 @@ type Rule struct {
 }
 
 type MetaMatch struct {
-	Name        string `yaml:"name"`
-	Match       string `yaml:"match"`
-	matchRegExp *regexp.Regexp
+	NameRaw  string `yaml:"name"`
+	MatchRaw string `yaml:"match"`
+	name     *regexp.Regexp
+	match    *regexp.Regexp
 }
 
 func NewLinter(configFile string) (*Linter, error) {
@@ -116,18 +117,28 @@ func (l *Linter) InitRegExpMatcher() error {
 		l.groupNameRegExp = groupNameRegExp
 	}
 	for _, labelMatch := range l.MatchRuleLabels {
-		re, err := regexp.Compile(labelMatch.Match)
+		re, err := regexp.Compile(labelMatch.MatchRaw)
 		if err != nil {
 			return err
 		}
-		labelMatch.matchRegExp = re
+		labelMatch.match = re
+		re, err = regexp.Compile(labelMatch.NameRaw)
+		if err != nil {
+			return err
+		}
+		labelMatch.name = re
 	}
 	for _, annMatch := range l.MatchRuleAnnotations {
-		re, err := regexp.Compile(annMatch.Match)
+		re, err := regexp.Compile(annMatch.MatchRaw)
 		if err != nil {
 			return err
 		}
-		annMatch.matchRegExp = re
+		annMatch.match = re
+		re, err = regexp.Compile(annMatch.NameRaw)
+		if err != nil {
+			return err
+		}
+		annMatch.name = re
 	}
 	return nil
 }
@@ -178,10 +189,10 @@ func (l *Linter) LintProjectGroup(group *Group) []error {
 }
 
 func (m *MetaMatch) MatchTo(key, value string) bool {
-	if m.Name != key {
+	if !m.name.MatchString(key) {
 		return true
 	}
-	if !m.matchRegExp.MatchString(value) {
+	if !m.match.MatchString(value) {
 		return false
 	}
 	return true
@@ -191,7 +202,7 @@ func (l *Linter) MatchLabels(label, value string) []error {
 	var errs []error
 	for _, labelMatch := range l.MatchRuleLabels {
 		if !labelMatch.MatchTo(label, value) {
-			errs = append(errs, fmt.Errorf("Label value '%s' not match to: %s", label, labelMatch.Match))
+			errs = append(errs, fmt.Errorf("Label value '%s' not match to: %s", label, labelMatch.MatchRaw))
 		}
 	}
 	return errs
@@ -201,7 +212,7 @@ func (l *Linter) MatchAnnotations(annotation, value string) []error {
 	var errs []error
 	for _, annMatch := range l.MatchRuleAnnotations {
 		if !annMatch.MatchTo(annotation, value) {
-			errs = append(errs, fmt.Errorf("Annotation value '%s' not match to: %s", annotation, annMatch.Match))
+			errs = append(errs, fmt.Errorf("Annotation value '%s' not match to: %s", annotation, annMatch.MatchRaw))
 		}
 	}
 	return errs

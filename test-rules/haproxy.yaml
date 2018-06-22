@@ -26,5 +26,7 @@ groups:
         annotations:
           summary: Prometheus HAProxy Exporter {{ $labels.group }} {{ $labels.instance }} недоступен
           description: Prometheus HAProxy Exporter на сервере {{ $labels.instance }} группы {{ $labels.group }} не отвечает на HTTP-запросы Prometheus более 5 минут
-          grafana_url: http://grafana.local/dashboard/db/haproxy-instance?from=now-30m&var-node={{ $labels.instance }}
+          grafana_url: http://grafana.local/instance/{{ $labels.instance }}
+          graylog_url: http://graylog.local/instance/{{ $labels.instance }}
+          rancher_url: http://rancher.local/instance/{{ $labels.instance }}
           brief_summary: "HAProxyExporterDown: {{ $labels.instance }}"

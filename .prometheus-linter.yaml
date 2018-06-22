@@ -27,11 +27,7 @@ matchRuleAnnotations:
     match: "{{ \\$labels.(instance|vhost|name) }}"
   - name: brief_summary
     match: "{{ \\$labels.(instance|vhost|name) }}"
-  - name: grafana_url
+  - name: ^.*_url
     match: "{{ \\$labels."
-  - name: graylog_url
-    match: "{{ \\$labels."
-  - name: rancher_url
-    match: "{{ \\$labels."
-  - name: splunk_url
-    match: "{{ \\$labels."
+  - name: ^.*_url
+    match: "^http"
