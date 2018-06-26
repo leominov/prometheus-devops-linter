@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
-	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -15,11 +13,6 @@ import (
 
 const (
 	DefaultConfigFilename = ".prometheus-linter.yaml"
-)
-
-var (
-	AlertsPath = flag.String("path", "", "Directory with alert files")
-	ConfigFile = flag.String("config-file", "", "Configuration file")
 )
 
 func DiscoverConfigFile() string {
@@ -48,18 +41,11 @@ func ParseArgs() (string, []string, error) {
 	}
 	linterType := strings.ToLower(args[1])
 	paths := args[2:]
-	if linterType != "rules" && linterType != "targets" {
-		return "", []string{}, fmt.Errorf("Incorrect linter type: %s", linterType)
-	}
 	return linterType, paths, nil
 }
 
 func main() {
-	var configFile string
-	configFile = *ConfigFile
-	if len(configFile) == 0 {
-		configFile = DiscoverConfigFile()
-	}
+	configFile := DiscoverConfigFile()
 	logrus.Infof("Starting prometheus-devops-linter %s...", version.Info())
 	logrus.Infof("Configuration path: %s", configFile)
 	ml, err := linter.NewMetaLinter(configFile)

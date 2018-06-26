@@ -1,8 +1,8 @@
-package targets
+package jobs
 
 type Project struct {
-	Jobs     []*Job `yaml:"groups"`
-	Filename string `yaml:"-"`
+	Jobs     []*Job
+	Filename string
 }
 
 type Job struct {

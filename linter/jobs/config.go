@@ -1,4 +1,4 @@
-package targets
+package jobs
 
 type Config struct {
 	UniqueJobName       bool     `yaml:"uniqueJobName"`

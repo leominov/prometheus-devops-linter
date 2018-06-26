@@ -10,6 +10,10 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const (
+	LinterName = "rules"
+)
+
 type Linter struct {
 	c             *Config
 	groupNameList map[string]bool

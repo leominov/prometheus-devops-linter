@@ -1,4 +1,4 @@
-package targets
+package jobs
 
 import (
 	"errors"
@@ -8,6 +8,10 @@ import (
 	"github.com/leominov/prometheus-devops-linter/linter/pkg/util"
 	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
+)
+
+const (
+	LinterName = "jobs"
 )
 
 type Linter struct {
@@ -108,7 +112,7 @@ func (l *Linter) LintProject(project *Project) error {
 func (l *Linter) LintFiles(files []string) error {
 	var doneWithErrors bool
 	for _, filename := range files {
-		logrus.Infof("Processing '%s' targets file...", filename)
+		logrus.Infof("Processing '%s' jobs file...", filename)
 		project, err := l.LoadProjectFromFile(filename)
 		if err != nil {
 			return err

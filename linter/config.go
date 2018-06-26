@@ -3,14 +3,14 @@ package linter
 import (
 	"io/ioutil"
 
+	"github.com/leominov/prometheus-devops-linter/linter/jobs"
 	"github.com/leominov/prometheus-devops-linter/linter/rules"
-	"github.com/leominov/prometheus-devops-linter/linter/targets"
 	yaml "gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	RulesConfig   *rules.Config   `yaml:"rules"`
-	TargetsConfig *targets.Config `yaml:"targets"`
+	RulesConfig *rules.Config `yaml:"rules"`
+	JobsConfig  *jobs.Config  `yaml:"jobs"`
 }
 
 func loadConfigFromFile(configFile string) (*Config, error) {
@@ -49,8 +49,8 @@ func (c *Config) SetDefaults() {
 		c.RulesConfig = &rules.Config{}
 		c.RulesConfig.SetDefaults()
 	}
-	if c.TargetsConfig == nil {
-		c.TargetsConfig = &targets.Config{}
-		c.TargetsConfig.SetDefaults()
+	if c.JobsConfig == nil {
+		c.JobsConfig = &jobs.Config{}
+		c.JobsConfig.SetDefaults()
 	}
 }

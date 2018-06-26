@@ -29,7 +29,7 @@ rules:
     - name: ^.*_url
       match: "^http"
 
-targets:
+jobs:
   uniqueJobName: true
   uniqueTarget: true
   requireTargetLabels:

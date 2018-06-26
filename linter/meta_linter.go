@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/leominov/prometheus-devops-linter/linter/jobs"
 	"github.com/leominov/prometheus-devops-linter/linter/rules"
-	"github.com/leominov/prometheus-devops-linter/linter/targets"
 )
 
 type MetaLinter struct {
 	c             *Config
 	rulesLinter   *rules.Linter
-	targetsLinter *targets.Linter
+	targetsLinter *jobs.Linter
 }
 
 func NewMetaLinter(configFile string) (*MetaLinter, error) {
@@ -23,7 +23,7 @@ func NewMetaLinter(configFile string) (*MetaLinter, error) {
 		c: config,
 	}
 	ml.rulesLinter = rules.NewLinter(config.RulesConfig)
-	ml.targetsLinter = targets.NewLinter(config.TargetsConfig)
+	ml.targetsLinter = jobs.NewLinter(config.JobsConfig)
 	return ml, nil
 }
 
@@ -39,10 +39,12 @@ func (m *MetaLinter) LintFilesAs(linter string, paths []string) error {
 		}
 	}
 	switch linter {
-	case "rules":
+	case rules.LinterName:
 		return m.rulesLinter.LintFiles(filesToLint)
-	case "targets":
+	case jobs.LinterName:
 		return m.targetsLinter.LintFiles(filesToLint)
+	default:
+		return fmt.Errorf("Incorrect linter type: %s", linter)
 	}
 	return nil
 }
