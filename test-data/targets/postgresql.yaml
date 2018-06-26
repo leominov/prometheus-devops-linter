@@ -1,0 +1,14 @@
+- job_name: postgresql
+  static_configs:
+    - targets:
+        - localhost:9187
+      labels:
+        group: pfa2
+        env: prod
+        service: postgresql
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace

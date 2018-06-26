@@ -1,29 +1,38 @@
 ---
-groupPerFile: false
+rules:
+  groupPerFile: false
 
-matchGroupName: ^([a-zA-Z0-9]+)$
-requireGroupRules: true
-requireGroupName: true
-uniqueGroupName: true
+  matchGroupName: ^([a-zA-Z0-9]+)$
+  requireGroupRules: true
+  requireGroupName: true
+  uniqueGroupName: true
 
-matchRuleAlertName: ^([a-zA-Z0-9]+)$
-requireRuleAlertName: true
-requireRuleExpr: true
-requireRuleLabels:
-  - env
-  - group
-  - severity
-  - service
-requireRuleAnnotations:
-  - summary
-  - brief_summary
-matchRuleLabels:
-  - name: severity
-    match: ^([a-z]+)$
-matchRuleAnnotations:
-  - name: (summary|description|brief_summary)
-    match: "{{ \\$labels.(instance|vhost|name) }}"
-  - name: ^.*_url
-    match: "{{ \\$labels."
-  - name: ^.*_url
-    match: "^http"
+  matchRuleAlertName: ^([a-zA-Z0-9]+)$
+  requireRuleAlertName: true
+  requireRuleExpr: true
+  requireRuleLabels:
+    - env
+    - group
+    - severity
+    - service
+  requireRuleAnnotations:
+    - summary
+    - brief_summary
+  matchRuleLabels:
+    - name: severity
+      match: ^([a-z]+)$
+  matchRuleAnnotations:
+    - name: (summary|description|brief_summary)
+      match: "{{ \\$labels.(instance|vhost|name) }}"
+    - name: ^.*_url
+      match: "{{ \\$labels."
+    - name: ^.*_url
+      match: "^http"
+
+targets:
+  uniqueJobName: true
+  uniqueTarget: true
+  requireTargetLabels:
+    - env
+    - group
+    - service

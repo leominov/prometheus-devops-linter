@@ -1,0 +1,80 @@
+# https://gitlab.com/gitlab-org/gitlab-monitor
+# https://gitlab.com/gitlab-org/gitlab-monitor/issues/38
+- job_name: gitlab-git
+  metrics_path: /git_process
+  static_configs:
+    - targets:
+        - localhost:9168
+      labels:
+        group: pfa2
+        env: prod
+        service: gitlab
+        component: git
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace
+- job_name: gitlab-database
+  metrics_path: /database
+  static_configs:
+    - targets:
+        - localhost:9168
+      labels:
+        group: pfa2
+        env: prod
+        service: gitlab
+        component: database
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace
+- job_name: gitlab-process
+  metrics_path: /process
+  static_configs:
+    - targets:
+        - localhost:9168
+      labels:
+        group: pfa2
+        env: prod
+        service: gitlab
+        component: process
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace
+- job_name: gitlab-sidekiq
+  metrics_path: /sidekiq
+  static_configs:
+    - targets:
+        - localhost:9168
+      labels:
+        group: pfa2
+        env: prod
+        service: gitlab
+        component: sidekiq
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace
+- job_name: gitlab-runner
+  static_configs:
+    - targets:
+        - localhost:9252
+      labels:
+        group: pfa2
+        env: prod
+        service: gitlab
+  relabel_configs:
+    - source_labels: [__address__]
+      regex: ^(.*):\d+$
+      target_label: instance
+      replacement: $1
+      action: replace
