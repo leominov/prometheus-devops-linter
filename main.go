@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -44,7 +45,36 @@ func ParseArgs() (string, []string, error) {
 	return linterType, paths, nil
 }
 
+func HasVersionFlag() bool {
+	for _, arg := range os.Args {
+		if arg == "--version" || arg == "-v" {
+			return true
+		}
+	}
+	return false
+}
+
+func HasHelpFlag() bool {
+	for _, arg := range os.Args {
+		if arg == "--help" || arg == "-h" {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
+	if HasVersionFlag() {
+		fmt.Println(version.Info())
+		fmt.Println(version.BuildContext())
+		os.Exit(0)
+	}
+	if HasHelpFlag() {
+		fmt.Println("Usage:")
+		fmt.Println("prometheus-devops-linter jobs jobs/*.*")
+		fmt.Println("prometheus-devops-linter alerts alerts/*.*")
+		os.Exit(0)
+	}
 	configFile := DiscoverConfigFile()
 	logrus.Infof("Starting prometheus-devops-linter %s...", version.Info())
 	logrus.Infof("Configuration path: %s", configFile)
