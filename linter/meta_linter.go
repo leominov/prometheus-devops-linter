@@ -40,9 +40,9 @@ func (m *MetaLinter) LintFilesAs(linter string, paths []string) error {
 	}
 	switch linter {
 	case "rules":
-		m.rulesLinter.LintFiles(filesToLint)
+		return m.rulesLinter.LintFiles(filesToLint)
 	case "targets":
-		m.targetsLinter.LintFiles(filesToLint)
+		return m.targetsLinter.LintFiles(filesToLint)
 	}
 	return nil
 }
