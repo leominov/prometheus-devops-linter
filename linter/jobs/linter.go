@@ -117,6 +117,10 @@ func (l *Linter) LintFiles(files []string) error {
 		if err != nil {
 			return err
 		}
+		if project == nil {
+			logrus.Warnf("File %s is empty", filename)
+			continue
+		}
 		if err := l.LintProject(project); err != nil {
 			doneWithErrors = true
 		}

@@ -72,7 +72,7 @@ func main() {
 	if HasHelpFlag() {
 		fmt.Println("Usage:")
 		fmt.Println("prometheus-devops-linter jobs jobs/*.*")
-		fmt.Println("prometheus-devops-linter alerts alerts/*.*")
+		fmt.Println("prometheus-devops-linter rules rules/*.*")
 		os.Exit(0)
 	}
 	configFile := DiscoverConfigFile()
