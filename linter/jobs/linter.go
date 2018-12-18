@@ -76,7 +76,7 @@ func (l *Linter) LintJob(job *Job) []error {
 				if l.IsUniqueJobTarget(fullTargetName) {
 					l.jobTargetList[fullTargetName] = true
 				} else {
-					errs = append(errs, errors.New("Job target must be unique"))
+					errs = append(errs, fmt.Errorf("Job target must be unique, found duplicate of %s", targer))
 				}
 			}
 		}
