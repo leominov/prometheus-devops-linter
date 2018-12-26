@@ -20,6 +20,7 @@ func (g *Group) String() string {
 }
 
 type Rule struct {
+	Record      string
 	Alert       string
 	Expr        string
 	For         time.Duration
@@ -31,5 +32,5 @@ func (r *Rule) String() string {
 	if len(r.Alert) > 0 {
 		return r.Alert
 	}
-	return "(unnamed alert)"
+	return "(unnamed rule)"
 }

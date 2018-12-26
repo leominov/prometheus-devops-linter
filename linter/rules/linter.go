@@ -77,6 +77,14 @@ func (l *Linter) MatchAnnotations(annotation, value string) []error {
 	return errs
 }
 
+func (l *Linter) LintProjectRecord(record *Rule) []error {
+	var errs []error
+	if l.c.RequireRuleExpr && len(record.Expr) == 0 {
+		errs = append(errs, errors.New("Record expr is required"))
+	}
+	return errs
+}
+
 func (l *Linter) LintProjectRule(rule *Rule) []error {
 	var errs []error
 	if l.c.RequireRuleAlert && len(rule.Alert) == 0 {
@@ -132,6 +140,14 @@ func (l *Linter) LintProject(project *Project) error {
 			util.PrintErrors(group.String(), groupErrors)
 		}
 		for _, rule := range group.Rules {
+			if len(rule.Record) != 0 {
+				recordErrors := l.LintProjectRecord(rule)
+				if len(recordErrors) > 0 {
+					withErrors = true
+					util.PrintErrors(fmt.Sprintf("%s > %s", group, rule), recordErrors)
+				}
+				continue
+			}
 			ruleErrors := l.LintProjectRule(rule)
 			if len(ruleErrors) > 0 {
 				withErrors = true

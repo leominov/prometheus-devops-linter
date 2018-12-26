@@ -2,6 +2,8 @@
 groups:
   - name: HAProxy
     rules:
+      - record: job:http_inprogress_requests:sum
+        expr: sum(http_inprogress_requests) by (job)
       - alert: HAProxyDown
         expr: haproxy_up{env = "prod"} == 0
         for: 3m
