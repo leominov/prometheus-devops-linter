@@ -77,7 +77,11 @@ func main() {
 	}
 	configFile := DiscoverConfigFile()
 	logrus.Infof("Starting prometheus-devops-linter %s...", version.Info())
-	logrus.Infof("Configuration path: %s", configFile)
+	if len(configFile) > 0 {
+		logrus.Infof("Configuration path: %s", configFile)
+	} else {
+		logrus.Warn("Configuration file is not defined, default configuration will be used")
+	}
 	ml, err := linter.NewMetaLinter(configFile)
 	if err != nil {
 		logrus.Error(err)

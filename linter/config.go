@@ -27,10 +27,8 @@ func loadConfigFromFile(configFile string) (*Config, error) {
 }
 
 func NewConfig(path string) (*Config, error) {
-	var (
-		config *Config
-		err    error
-	)
+	var err error
+	config := &Config{}
 	if len(path) > 0 {
 		config, err = loadConfigFromFile(path)
 		if err != nil {
