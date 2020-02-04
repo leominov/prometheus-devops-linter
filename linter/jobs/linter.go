@@ -46,18 +46,12 @@ func (l *Linter) LoadProjectFromFile(filename string) (*Project, error) {
 
 func (l *Linter) IsUniqueJob(job *Job) bool {
 	_, ok := l.jobNameList[job.Name]
-	if ok {
-		return false
-	}
-	return true
+	return !ok
 }
 
 func (l *Linter) IsUniqueJobTarget(target string) bool {
 	_, ok := l.jobTargetList[target]
-	if ok {
-		return false
-	}
-	return true
+	return !ok
 }
 
 func (l *Linter) LintJob(job *Job) []error {

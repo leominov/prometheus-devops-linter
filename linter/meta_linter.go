@@ -34,9 +34,7 @@ func (m *MetaLinter) LintFilesAs(linter string, paths []string) error {
 		if err != nil {
 			return fmt.Errorf("Path error: %v", err)
 		}
-		for _, filename := range files {
-			filesToLint = append(filesToLint, filename)
-		}
+		filesToLint = append(filesToLint, files...)
 	}
 	switch linter {
 	case rules.LinterName:
@@ -46,5 +44,4 @@ func (m *MetaLinter) LintFilesAs(linter string, paths []string) error {
 	default:
 		return fmt.Errorf("Incorrect linter type: %s", linter)
 	}
-	return nil
 }

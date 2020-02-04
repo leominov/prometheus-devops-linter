@@ -28,10 +28,7 @@ func NewLinter(config *Config) *Linter {
 
 func (l *Linter) IsUniqueGroup(group *Group) bool {
 	_, ok := l.groupNameList[group.Name]
-	if ok {
-		return false
-	}
-	return true
+	return !ok
 }
 
 func (l *Linter) LintProjectGroup(group *Group) []error {
