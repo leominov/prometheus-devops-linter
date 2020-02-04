@@ -1,7 +1,0 @@
-package: github.com/leominov/prometheus-devops-linter
-import:
-- package: github.com/prometheus/common
-  subpackages:
-  - version
-- package: github.com/sirupsen/logrus
-- package: gopkg.in/yaml.v2
