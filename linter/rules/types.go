@@ -7,6 +7,19 @@ type Project struct {
 	Filename string   `yaml:"-"`
 }
 
+// ---
+// apiVersion: monitoring.coreos.com/v1
+// kind: PrometheusRule
+// metadata:
+//   name: kube-rules
+// spec:
+//   groups: []
+type PrometheusOperatorProject struct {
+	Spec struct {
+		Groups []*Group `yaml:"groups"`
+	} `yaml:"spec"`
+}
+
 type Group struct {
 	Name  string  `yaml:"name"`
 	Rules []*Rule `yaml:"rules"`

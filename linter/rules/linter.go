@@ -166,9 +166,15 @@ func (l *Linter) LoadProjectFromFile(filename string) (*Project, error) {
 	project := &Project{
 		Filename: filename,
 	}
-	err = yaml.Unmarshal(bytes, &project)
-	if err != nil {
-		return nil, err
+	prometheusOperatorProject := &PrometheusOperatorProject{}
+	err = yaml.Unmarshal(bytes, &prometheusOperatorProject)
+	if err == nil {
+		project.Groups = prometheusOperatorProject.Spec.Groups
+	} else {
+		err = yaml.Unmarshal(bytes, &project)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return project, nil
 }

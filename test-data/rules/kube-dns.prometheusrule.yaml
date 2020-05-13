@@ -1,0 +1,23 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kube-rules
+spec:
+  groups:
+    - name: Kube
+      rules:
+        - alert: KubeDNSDown
+          expr: up{job="kube_dns"} == 0
+          for: 5m
+          labels:
+            env: "prod"
+            group: "advert-infra"
+            service: "dns"
+            severity: warning
+            cluster: "{{ $externalLabels.cluster }}"
+            namespace: "{{ $labels.namespace }}"
+          annotations:
+            summary: KubeDNS $CLUSTER_NAME/{{ $labels.namespace }} {{ $labels.instance }} недоступен
+            description: KubeDNS {{ $labels.instance }} кластера {{ $externalLabels.cluster }}/{{ $labels.namespace }} не отвечает на HTTP-запросы Prometheus более 5 минут
+            brief_summary: "KubeDNSDown: {{ $labels.instance }}"
