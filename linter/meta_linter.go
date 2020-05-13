@@ -14,17 +14,13 @@ type MetaLinter struct {
 	targetsLinter *jobs.Linter
 }
 
-func NewMetaLinter(configFile string) (*MetaLinter, error) {
-	config, err := NewConfig(configFile)
-	if err != nil {
-		return nil, err
-	}
+func NewMetaLinter(config *Config) *MetaLinter {
 	ml := &MetaLinter{
 		c: config,
 	}
 	ml.rulesLinter = rules.NewLinter(config.RulesConfig)
 	ml.targetsLinter = jobs.NewLinter(config.JobsConfig)
-	return ml, nil
+	return ml
 }
 
 func (m *MetaLinter) LintFilesAs(linter string, paths []string) error {

@@ -75,27 +75,40 @@ func main() {
 		fmt.Println("prometheus-devops-linter rules rules/*.*")
 		os.Exit(0)
 	}
+
+	err := ConfigureLogging(
+		os.Getenv("LOG_LEVEL"),
+		os.Getenv("LOG_FORMAT"),
+	)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	configFile := DiscoverConfigFile()
+
 	logrus.Infof("Starting prometheus-devops-linter %s...", version.Info())
 	if len(configFile) > 0 {
 		logrus.Infof("Configuration path: %s", configFile)
 	} else {
 		logrus.Warn("Configuration file is not defined, default configuration will be used")
 	}
-	ml, err := linter.NewMetaLinter(configFile)
+
+	config, err := linter.NewConfig(configFile)
 	if err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
+
+	ml := linter.NewMetaLinter(config)
+
 	linterType, paths, err := ParseArgs()
 	if err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
+
 	err = ml.LintFilesAs(linterType, paths)
 	if err != nil {
-		logrus.Error(err)
-		os.Exit(2)
+		logrus.Fatal(err)
 	}
+
 	logrus.Info("Done without errors")
 }
