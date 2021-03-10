@@ -16,7 +16,7 @@ style:
 
 test:
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	@$(GO) test $(pkgs) -v --cover
 
 format:
 	@echo ">> formatting code"

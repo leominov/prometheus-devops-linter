@@ -3,11 +3,9 @@ package rules
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/leominov/prometheus-devops-linter/linter/pkg/util"
 	"github.com/sirupsen/logrus"
-	yaml "gopkg.in/yaml.v2"
 )
 
 const (
@@ -158,32 +156,11 @@ func (l *Linter) LintProject(project *Project) error {
 	return nil
 }
 
-func (l *Linter) LoadProjectFromFile(filename string) (*Project, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	project := &Project{
-		Filename: filename,
-	}
-	prometheusOperatorProject := &PrometheusOperatorProject{}
-	err = yaml.Unmarshal(bytes, &prometheusOperatorProject)
-	if err == nil {
-		project.Groups = prometheusOperatorProject.Spec.Groups
-	} else {
-		err = yaml.Unmarshal(bytes, &project)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return project, nil
-}
-
 func (l *Linter) LintFiles(files []string) error {
 	var doneWithErrors bool
 	for _, filename := range files {
 		logrus.Infof("Processing '%s' rules file...", filename)
-		project, err := l.LoadProjectFromFile(filename)
+		project, err := LoadProjectFromFile(filename)
 		if err != nil {
 			return err
 		}
